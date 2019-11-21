@@ -9,10 +9,16 @@ var app = new Vue({
 		error:{},
 		message:"",
 		offerToUpdate:{},
+		uploadImageError:"",
+		filter:"",
+		page:1,
+		selectedOffers:[],
+		status:"",
+		groups:[],
 	},
 	methods: {
 		getOffers(){
-			axios.get("/api/getOffers")
+			axios.get("/api/getOffers?page="+this.page+"&filter="+this.filter+"&status="+this.status)
 			.then((res)=>{
 				this.offers = res.data;
 			})
@@ -38,6 +44,10 @@ var app = new Vue({
 				this.offerToStore.image_path = res.data;
 				this.uploadingImage=false;
 			})
+			.catch((err)=>{
+				this.uploadingImage=false;
+				this.fillErrors(err);
+			})
 		},
 		storeOffer(){
 			this.emptyErrors();
@@ -45,7 +55,8 @@ var app = new Vue({
 			.then((res)=>{
 				this.getOffers();
 				this.hideCreateOfferModal();
-				this.showSuccessMessage("Offer was created successfully")
+				this.showSuccessMessage("Offer was created successfully");
+				this.offerToStore = {};
 			})
 			.catch((err)=>{
 				console.log(err);
@@ -53,10 +64,8 @@ var app = new Vue({
 			})
 		},
 		fillErrors(err){
-			if(err.response){
-				this.error= err.response.data.errors;
-				this.message = err.response.data.message;
-			}
+			if(err.response.data.message) this.message = err.response.data.message;
+			if(err.response.data.errors) this.error= err.response.data.errors;
 		},
 		emptyErrors(){
 			this.error = {};
@@ -106,14 +115,46 @@ var app = new Vue({
 				this.getOffers();
 				this.hideEditOfferModal();
 				this.showSuccessMessage("Offer ws updated successfully");
+				this.offerToUpdate = {};
 			})
 			.catch((err)=>{
 				this.fillErrors(err);
+			})
+		},
+		checkBoxClicked($event,id)
+		{
+			if($event.target.checked)
+			{
+				this.selectedOffers.push(id);
+			}
+			else
+			{
+				this.selectedOffers = this.selectedOffers.filter((item)=>(item!=id));
+			}
+		},
+		doAction(action)
+		{
+			this.emptyErrors();
+			axios.post("api/action/"+action,this.selectedOffers)
+			.then((res)=>{
+				console.log(res);
+				this.showSuccessMessage("Success");
+				this.getOffers();
+			}).catch((err)=>{
+				this.fillErrors();
+			})
+		},
+		getGroups()
+		{
+			axios.get("api/offers/groups")
+			.then((res)=>{
+				this.groups = res.data.data;
 			})
 		}
 	},
 	created(){
 		this.getOffers();
+		this.getGroups();
 		this.loading=false;
 	}
 })

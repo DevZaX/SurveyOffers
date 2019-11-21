@@ -12,4 +12,8 @@ class UserPolicy
     public function index(User $user){
         return $user->superAdmin == 1;
     }
+
+    public function edit(User $auth,User $user){
+    	return $auth->id == $user->id;
+    }
 }

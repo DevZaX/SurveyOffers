@@ -7,6 +7,7 @@
           <div class="card shadow">
           	<div v-cloak v-show="!loading">
             <div class="card-header border-0">
+            	<p style="color: red;">@{{ message }}</p>
             	<button class="btn btn-primary" @click="showCreateUserModal">Create new user</button>
             	<div id="createUserModal"  class="modal" tabindex="-1" role="dialog">
 				  <div class="modal-dialog modal-lg" role="document">
@@ -18,7 +19,6 @@
 				        </button>
 				      </div>
 				      <div class="modal-body">
-				      	<p  v-if="message" style="color: red">@{{message}}</p>
 				        <form>
 				        	@csrf
 				        	<div class="form-group">
@@ -82,13 +82,16 @@
 				    </div>
 				  </div>
 				</div>
-            	<hr>
+            	<hr style="border: 0">
             	<div v-show="successMessage">
 	            	<div  class="alert alert-success">
 	            		@{{successMessage}}
 	            	</div>
-	            	<hr>
+	            	<hr style="border: 0">
             	</div>
+
+            	<input type="text" class="form-control" style="margin-left: 16px;width: 95%" placeholder="Filter" v-model="filter" @keyup="getUsers()">
+				<hr style="border: 0">
             	
               <h3 class="mb-0">Users</h3>
             </div>
@@ -126,14 +129,14 @@
             <div class="card-footer py-4">
               <nav aria-label="...">
                 <ul class="pagination justify-content-end mb-0">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">
+                  <li class="page-item" :class="{'disabled':page<=1}">
+                    <a @click="getUsers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
                       <i class="fas fa-angle-left"></i>
                       <span class="sr-only">Previous</span>
                     </a>
                   </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">
+                  <li class="page-item" :class="{'disabled':users.length==0}">
+                    <a @click="getUsers(++page)" class="page-link" href="javascript:void(0)">
                       <i class="fas fa-angle-right"></i>
                       <span class="sr-only">Next</span>
                     </a>

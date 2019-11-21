@@ -9,15 +9,17 @@ var app = new Vue({
 		userToUpdate:{id:null,name:"",email:""},
 		successMessage:"",
 		loading:true,
+		page:1,
+		filter:"",
 	},
 	methods:{
 		getUsers(){
-			axios.get("/api/users").then((res)=>{console.log(res);this.users=res.data});
+			axios.get("/api/users?page="+this.page+"&filter="+this.filter).then((res)=>{console.log(res);this.users=res.data});
 		},
 		storeUser(){
 			this.emptyErrors();
 			axios.post("/api/users",this.userToStore)
-			.then((res)=>{this.getUsers();this.hideCreateUserModal();this.showSuccessMessage("User was created successfully")})
+			.then((res)=>{this.getUsers();this.hideCreateUserModal();this.showSuccessMessage("User was created successfully");this.userToStore={id:null,name:"",email:"",password:""}})
 			.catch((err)=>{this.fillErrors(err);});
 		},
 		showCreateUserModal(){
@@ -28,10 +30,8 @@ var app = new Vue({
 			$("#createUserModal").modal("hide");
 		},
 		fillErrors(err){
-			if(err.response){
-				this.error= err.response.data.errors;
-				this.message = err.response.data.message;
-			}
+			if(err.response.data.errors) this.error = err.response.data.errors;
+			if(err.response.data.message) this.message = err.response.data.message;
 		},
 		emptyErrors(){
 			this.error = {};
@@ -50,7 +50,7 @@ var app = new Vue({
 		updateUser(){
 			this.emptyErrors();
 			axios.put(`/api/users/${this.userToUpdate.id}`,this.userToUpdate)
-			.then((res)=>{this.getUsers();this.hideEditUserModal();this.showSuccessMessage("User was updated successfully")})
+			.then((res)=>{this.getUsers();this.hideEditUserModal();this.showSuccessMessage("User was updated successfully");this.userToUpdate={id:null,name:"",email:""}})
 			.catch((err)=>{this.fillErrors(err);});
 		},
 		toggleEditPassword(){
