@@ -92,6 +92,11 @@
 													</select>
 													<div style="color: red;" v-if="error.group_id && error.group_id.length>0">@{{error.group_id[0]}}</div>
 												</div>
+												<div class="form-group">
+													<label>Source:</label>
+													<input type="text" class="form-control" v-model="offerToStore.source">
+													<div style="color: red;" v-if="error.source && error.source.length>0">@{{error.source[0]}}</div>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -181,6 +186,11 @@
 														<option v-for="group in groups" :value="group.id">@{{ group.name }}</option>
 													</select>
 													<div style="color: red;" v-if="error.group_id && error.group_id.length>0">@{{error.group_id[0]}}</div>
+												</div>
+												<div class="form-group">
+													<label>Source:</label>
+													<input type="text" class="form-control" v-model="offerToUpdate.source">
+													<div style="color: red;" v-if="error.source && error.source.length>0">@{{error.source[0]}}</div>
 												</div>
 											</div>
 										</div>

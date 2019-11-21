@@ -12,7 +12,8 @@ class AuthController extends Controller
 
     public function create(){
     	request()->validate(["email"=>"required|email","password"=>"required"]);
-    	\Auth::attempt(["email"=>request("email"),"password"=>request("password")]);
+    	if( \Auth::attempt(["email"=>request("email"),"password"=>request("password")]) ){}
+        else return response(["message"=>"These credentials do not match our records."],500);
     }
 
     public function show(){

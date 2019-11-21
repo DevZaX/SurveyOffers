@@ -29,6 +29,8 @@ class OfferResource extends JsonResource
             "currency"=>$this->currency,
             "created_at"=>$this->created_at->format("M,d/Y"),
             "user"=>$this->user,
+            "group_id"=>$this->group_id,
+            "source"=>$this->source,
         ];
     }
 }

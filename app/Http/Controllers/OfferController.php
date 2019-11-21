@@ -49,6 +49,7 @@ class OfferController extends Controller
             "currency"=>"required",
             "status"=>"boolean",
             "group_id"=>"required",
+            "source"=>"required",
        ]);
 
        auth()->user()->offers()->create([
@@ -64,6 +65,7 @@ class OfferController extends Controller
             "users_number"=>request("users_number"),
             "currency"=>request("currency"),
             "group_id"=>request("group_id"),
+            "source"=>request("source"),
        ]);
     }
 
@@ -96,6 +98,7 @@ class OfferController extends Controller
             "currency"=>"required|sometimes",
             "status"=>"boolean|sometimes",
             "group_id"=>"required|sometimes",
+            "source"=>"required|sometimes",
        ]);
 
         $offer->update(request()->all());
