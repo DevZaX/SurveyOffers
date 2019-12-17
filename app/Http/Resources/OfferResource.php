@@ -29,8 +29,11 @@ class OfferResource extends JsonResource
             "currency"=>$this->currency,
             "created_at"=>$this->created_at->format("M,d/Y"),
             "user"=>$this->user,
-            "group_id"=>$this->group_id,
+            "group"=>$this->group,
             "source"=>$this->source,
+            "geo"=>$this->geo,
+            "group_id"=>$this->group_id,
+            //"shippingPrice"=>$this->shippingPrice,
         ];
     }
 }

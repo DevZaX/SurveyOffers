@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OfferCollection;
 use App\Http\Resources\OfferResource;
-use App\Http\Resources\GroupResource;
 use App\Offer;
-use App\group;
 use Illuminate\Http\Request;
 
 class OfferController extends Controller
@@ -20,16 +19,22 @@ class OfferController extends Controller
         return view('offers.index');
     }
 
+    public function filter($model)
+    {
+       if( request("offer_name") ) $model = $model->where("offer_name","like","%".request("offer_name")."%");
+       if( request("status") !== null ) $model = $model->where("status",request("status"));
+       if( request("geo") ) $model = $model->where("geo",request("geo"));
+       if( request("group_id") ) $model = $model->where("group_id",request("group_id"));
+
+       return $model
+       ->orderBy("id","desc")
+       ->paginate(10);
+    }
+
     public function indexApi(Offer $offer){
-        if(auth()->user()->superAdmin) $offers = $offer
-            ->where("offer_name","like","%".request("filter")."%")
-            ->where("status","like","%".request("status")."%")
-            ->paginate(10);
-        else $offers = auth()->user()->offers()
-            ->where("offer_name","like","%".request("filter")."%")
-            ->where("status","like","%".request("status")."%")
-            ->paginate(10);
-        $offerCollection = OfferResource::collection($offers);
+        if(auth()->user()->superAdmin) $offers = $this->filter($offer);
+        else $offers = $this->filter(auth()->user()->group->offers());
+        $offerCollection = new OfferCollection($offers);
         return response($offerCollection);
     }
 
@@ -50,6 +55,8 @@ class OfferController extends Controller
             "status"=>"boolean",
             "group_id"=>"required",
             "source"=>"required",
+            "geo"=>"required",
+            //"shippingPrice"=>"required",
        ]);
 
        auth()->user()->offers()->create([
@@ -66,6 +73,8 @@ class OfferController extends Controller
             "currency"=>request("currency"),
             "group_id"=>request("group_id"),
             "source"=>request("source"),
+            "geo"=>request("geo"),
+            //"shippingPrice"=>request("shippingPrice"),
        ]);
     }
 
@@ -82,7 +91,7 @@ class OfferController extends Controller
 
         $offer = $offer->find($id);
 
-        $this->authorize("update",$offer);
+        //$this->authorize("update",$offer);
 
         request()->validate([
 
@@ -99,6 +108,8 @@ class OfferController extends Controller
             "status"=>"boolean|sometimes",
             "group_id"=>"required|sometimes",
             "source"=>"required|sometimes",
+            "geo"=>"required|sometimes",
+            //"shippingPrice"=>"required|sometimes",
        ]);
 
         $offer->update(request()->all());
@@ -118,11 +129,33 @@ class OfferController extends Controller
     }
 
 
-    public function groups(Group $group)
+    public function all(Offer $offer)
     {
-        $groups = $group->all();
-        return GroupResource::collection($groups);
+        $listOffers = Collect( request("listOffers") )->pluck("id");
+        if( auth()->user()->superAdmin )
+        {
+            $offers = $offer
+            ->whereNotIn("id",$listOffers)
+            ->where("geo",request("geo"))
+            ->where("group_id",request("group_id"))
+            ->where("offer_name","like","%".request("filteredOffer")."%")
+            ->paginate(10);
+        }
+        else 
+        {
+            $offers = auth()->user()->group->offers()
+             ->whereNotIn("id",$listOffers)
+             ->where("geo",request("geo"))
+             ->where("group_id",request("group_id"))
+            ->where("offer_name","like","%".request("filteredOffer")."%")
+            ->paginate(10);
+        }
+        
+        return OfferResource::collection($offers);
     }
+
+
+  
 
    
 }

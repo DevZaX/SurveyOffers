@@ -18,6 +18,7 @@ class GroupResource extends JsonResource
             "id" => $this->id,
             "name" => $this->name,
             "created_at" => $this->created_at->format("M,d/Y"),
+            "user" => $this->user,
         ];
     }
 }

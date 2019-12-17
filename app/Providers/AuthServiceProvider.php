@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Category;
 use App\Offer;
+use App\Policies\CategoryPolicy;
 use App\Policies\OfferPolicy;
 use App\Policies\UserPolicy;
 use App\User;
@@ -19,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
    /* protected $policies = [
        User::class => UserPolicy::class,
        Offer::class => OfferPolicy::class,
+       Category::class => CategoryPolicy::class,
     ];*/
 
     /**

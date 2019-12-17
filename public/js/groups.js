@@ -10,12 +10,20 @@ var app = new Vue({
 		groupToUpdate:{},
 		filter:"",
 		page:1,
+		perPage:"",
+		numberOfPages:0,
+		currentPage:"",
+		lastPage:0,
 	},
 	methods: {
 		getGroups(){
 			axios.get("/api/getGroups?page="+this.page+"&filter="+this.filter)
 			.then((res)=>{
 				this.groups = res.data.data;
+				this.perPage = res.data.perPage;
+				this.numberOfPages = res.data.numberOfPages;
+				this.currentPage = res.data.currentPage;
+				this.lastPage = res.data.lastPage;
 			})
 		},
 		showCreateGroupModal(){
@@ -88,5 +96,15 @@ var app = new Vue({
 	created(){
 		this.getGroups();
 		this.loading=false;
+	},
+	computed:{
+		pages:function(){
+			var ar = [];
+			for(var i=1;i<=this.numberOfPages;i++)
+			{
+				ar.push(i);
+			}
+			return ar;
+		}
 	}
 })

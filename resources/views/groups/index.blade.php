@@ -75,7 +75,7 @@
 						<div class="row container">
 							<div class="col-8">
 								<label>Filter</label>
-								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="getGroups" />
+								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="page=1;getGroups()" />
 							</div>
 						</div>
 						
@@ -88,6 +88,29 @@
 							</div>
 							<hr>
 						</div>
+
+						<nav style="margin-right: 32px" aria-label="...">
+							<ul class="pagination justify-content-end mb-0">
+								 <li class="page-item" :class="{'disabled':page==1}">
+								 	<a @click="getGroups(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+								 		<i class="fas fa-angle-left"></i>
+								 		<span class="sr-only">Previous</span>
+								 	</a>
+								 </li>
+								 <li v-for="pageNumber in pages.slice(0,lastPage)" class="page-item" :class="{'active':pageNumber==currentPage}">
+				                    <a @click="page=pageNumber;getGroups()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+				                 </li>
+								 <li class="page-item" :class="{'disabled':page>=pages.length}">
+								 	<a @click="getGroups(++page)" class="page-link" href="javascript:void(0)">
+								 		<i class="fas fa-angle-right"></i>
+								 		<span class="sr-only">Next</span>
+								 	</a>
+								 </li>
+							</ul>
+						</nav>
+
+						<hr style="border:0">
+
 
 						<div class="">
 							<table  class="table align-items-center table-flush">
@@ -117,15 +140,18 @@
 						</div>
 					</div>
 					<div class="card-footer py-4">
-							<nav aria-label="...">
+							<nav  aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
-								 <li class="page-item" :class="{'disabled':page<=1}">
+								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getGroups(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
 								 		<i class="fas fa-angle-left"></i>
 								 		<span class="sr-only">Previous</span>
 								 	</a>
 								 </li>
-								 <li class="page-item" :class="{'disabled':groups.length==0}">
+								 <li v-for="pageNumber in pages.slice(0,lastPage)" class="page-item" :class="{'active':pageNumber==currentPage}">
+				                    <a @click="page=pageNumber;getGroups()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+				                 </li>
+								 <li class="page-item" :class="{'disabled':page>=pages.length}">
 								 	<a @click="getGroups(++page)" class="page-link" href="javascript:void(0)">
 								 		<i class="fas fa-angle-right"></i>
 								 		<span class="sr-only">Next</span>
@@ -133,6 +159,7 @@
 								 </li>
 							</ul>
 						</nav>
+
 					</div>
 				</div>
 
@@ -149,5 +176,7 @@
 
 @section('js')
 	<script>$("#groups").addClass("active");</script>
+	<script>$("#permissionIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
+	<script>$(".permissionItems").toggle();</script>
 	<script src="/js/groups.js"></script>
 @endsection

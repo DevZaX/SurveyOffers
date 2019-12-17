@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','group_id'
     ];
 
     /**
@@ -41,5 +41,9 @@ class User extends Authenticatable
 
     public function offers(){
         return $this->hasMany(Offer::class);
+    }
+
+    public function group(){
+        return $this->belongsTo(Group::class);
     }
 }

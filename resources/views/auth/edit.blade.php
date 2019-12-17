@@ -46,20 +46,7 @@
             </div>
           </div>
           <!-- Navbar items -->
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link nav-link-icon" href="/offers">
-                <i class="ni ni-planet"></i>
-                <span class="nav-link-inner--text">Dashboard</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link nav-link-icon" href="/profile">
-                <i class="ni ni-single-02"></i>
-                <span class="nav-link-inner--text">Profile</span>
-              </a>
-            </li>
-          </ul>
+         
         </div>
       </div>
     </nav>
@@ -88,7 +75,7 @@
             <div class="card-body px-lg-5 py-lg-5">
               <p style="color: red;">@{{ message }}</p>
               <div class="text-center text-muted mb-4">
-                <small>Or sign in with credentials</small>
+                <small>Sign in with credentials</small>
               </div>
               <form role="form">
                 <div class="form-group mb-3">

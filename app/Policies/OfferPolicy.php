@@ -10,12 +10,17 @@ class OfferPolicy
 {
     use HandlesAuthorization;
 
-    public function update(User $user,Offer $offer){
-    	return $user->superAdmin || $offer->user_id == $user->id;
+    public function update(User $user){
+    	return $user->superAdmin;
     }
 
-     public function destroy(User $user,Offer $offer){
-    	return $user->superAdmin || $offer->user_id == $user->id;
+     public function destroy(User $user){
+    	return $user->superAdmin ;
+    }
+
+    public function store(User $user)
+    {
+        return $user->superAdmin ;
     }
 
     public function index(User $user){

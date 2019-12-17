@@ -13,7 +13,7 @@ class UserPolicy
         return $user->superAdmin == 1;
     }
 
-    public function edit(User $auth,User $user){
-    	return $auth->id == $user->id;
+    public function edit(User $user){
+    	return true;
     }
 }

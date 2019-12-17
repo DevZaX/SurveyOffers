@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Rules\MatchOldPassword;
 use App\User;
@@ -26,19 +27,19 @@ class UserController extends Controller
     public function indexApi(User $user){
     	$this->authorize("index",User::class);
     	$users = $user->where('superAdmin',0)->where("name","like","%".request("filter")."%")->paginate(10);
-    	$userCollection = UserResource::collection($users);
+    	$userCollection = new UserCollection($users);
     	return response($userCollection);
     }
 
     public function storeApi(User $user){
     	$this->authorize("index",User::class);
-    	request()->validate(["name"=>"required","email"=>"required|email|unique:users","password"=>"required"]);
-    	$user->create(["name"=>request("name"),"email"=>request("email"),"password"=>bcrypt(request("password"))]);
+    	request()->validate(["name"=>"required","email"=>"required|email|unique:users","password"=>"required","group_id"=>"required"]);
+    	$user->create(["name"=>request("name"),"email"=>request("email"),"password"=>bcrypt(request("password")),"group_id"=>request("group_id")]);
     }
 
     public function updateApi(User $user,$id){
 
-    	$this->authorize("index",User::class);
+    	$this->authorize("edit",User::class);
 
     	request()->validate(
             [
@@ -47,12 +48,14 @@ class UserController extends Controller
                 "password"=>["required","sometimes"],
                 "current_password"=>["required","sometimes",new MatchOldPassword],
                 "confirmation_password"=>["same:password","sometimes","required"],
+                "group_id"=>["required","sometimes"],
             ]
         );
 
         $data["name"] = request("name");
         if(request("password")) $data["password"] = bcrypt(request("password"));
         $data["email"] = request("email");
+        $data["group_id"] = request("group_id");
 
     	$user->find($id)->update($data);
     }

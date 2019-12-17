@@ -11,10 +11,23 @@ var app = new Vue({
 		loading:true,
 		page:1,
 		filter:"",
+		groups:[],
+		perPage:"",
+		numberOfPages:0,
+		currentPage:"",
+		lastPage:0,
 	},
 	methods:{
 		getUsers(){
-			axios.get("/api/users?page="+this.page+"&filter="+this.filter).then((res)=>{console.log(res);this.users=res.data});
+			axios.get("/api/users?page="+this.page+"&filter="+this.filter).then((res)=>
+				{
+					console.log(res);
+					this.users=res.data.data;
+					this.perPage = res.data.perPage;
+					this.numberOfPages = res.data.numberOfPages;
+					this.currentPage = res.data.currentPage;
+					this.lastPage = res.data.lastPage;
+				});
 		},
 		storeUser(){
 			this.emptyErrors();
@@ -41,6 +54,7 @@ var app = new Vue({
 			this.userToUpdate.id=user.id;
 			this.userToUpdate.name = user.name;
 			this.userToUpdate.email = user.email;
+			this.userToUpdate.group_id = user.group_id;
 			$("#editUserModal").modal();
 		},
 		hideEditUserModal(){
@@ -72,10 +86,30 @@ var app = new Vue({
 			axios.delete(`/api/users/${user.id}`)
 			.then((res)=>{this.getUsers();this.showSuccessMessage("User was deleted successfully")})
 			.catch((err)=>{this.fillErrors(err)});
+		},
+		getGroups(){
+			axios.get("api/AllGroups")
+			.then((res)=>{
+				this.groups = res.data.data;
+			})
+			.catch((err)=>{
+				this.fillErrors(err);
+			})
 		}
 	},
 	created(){
 		this.getUsers();
+		this.getGroups();
 		this.loading=false;
+	},
+	computed:{
+		pages:function(){
+			var ar = [];
+			for(var i=1;i<=this.numberOfPages;i++)
+			{
+				ar.push(i);
+			}
+			return ar;
+		}
 	}
 })

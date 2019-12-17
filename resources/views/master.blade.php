@@ -16,10 +16,19 @@
   <link href="/js/plugins/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link href="/css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="/css/select2.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
 
   <style>
     [v-cloak] {display: none}
   </style>
+
+  <script>
+    function toggleFunction(id)
+    {
+      $(id).toggle();
+    }
+  </script>
 
 </head>
 
@@ -58,18 +67,91 @@
         </div>
         <!-- Navigation -->
         <ul class="navbar-nav">
-          <li class="nav-item">
-          <a id="offers" class="nav-link" href="/offers"> <i class="ni ni-favourite-28 text-primary"></i> Offers
+
+          <li class="nav-item" style="margin-left: 16px;">
+            <a class="nav-link" href="javascript:void(0)" onclick="toggleFunction('.offersItems')" style="font-size: 1rem;color: black">
+                <i id="offersIcon" class="ni ni-bold-right text-primary"></i> Offers
             </a>
           </li>
-         @can("index",App\User::class) <li class="nav-item">
-            <a id="users" class="nav-link " href="/users">
-              <i class="ni ni-circle-08 text-blue"></i> Users 
+
+                         <li class="nav-item offersItems" style="display: none;margin-left: 8px">
+                          <a id="offers" class="nav-link" href="/offers">
+                            <i class="ni ni-favourite-28 text-primary"></i> Offers
+                            </a>
+                          </li>
+
+                          <li class="nav-item offersItems" style="display: none;margin-left:8px">
+                          <a id="templates" class="nav-link " href="/templates">
+                              <i class="ni ni-palette text-blue"></i> Templates
+                            </a>
+                          </li>
+
+
+                           @can("index",App\User::class) 
+                          <li class="nav-item offersItems" style="display: none;margin-left:8px">
+                            <a id="categories" class="nav-link " href="/categories">
+                              <i class="ni ni-books text-blue"></i> Categories 
+                            </a>
+                          </li>
+                          @endcan
+
+                           @can("index",App\User::class) 
+                          <div class="dropdown-divider"></div>
+                          @endcan
+
+           @can("index",App\User::class) 
+           <li class="nav-item" style="margin-left: 16px;">
+            <a class="nav-link" href="javascript:void(0)" onclick="toggleFunction('.permissionItems')" style="font-size: 1rem;color: black">
+                <i id="permissionIcon" class="ni ni-bold-right text-primary"></i> Permissions
             </a>
-             <a id="groups" class="nav-link " href="/groups">
-              <i class="ni ni-single-02 text-blue"></i> Groups 
+          </li>
+          @endcan
+
+                             @can("index",App\User::class) 
+                            <li class="nav-item permissionItems" style="display: none;margin-left:8px">
+                              <a id="users" class="nav-link " href="/users">
+                                <i class="ni ni-circle-08 text-blue"></i> Users 
+                              </a>
+                            </li>
+                            @endcan
+
+                             @can("index",App\User::class) 
+                            <li class="nav-item permissionItems" style="display: none;margin-left:8px">
+                               <a id="groups" class="nav-link " href="/groups">
+                                <i class="ni ni-single-02 text-blue"></i> Groups 
+                              </a>
+                            </li>
+                            @endcan
+
+
+
+                            <div class="dropdown-divider"></div>
+
+          
+           <li class="nav-item" style="margin-left: 16px;">
+            <a class="nav-link" href="javascript:void(0)" onclick="toggleFunction('.configurationItems')" style="font-size: 1rem;color: black">
+                <i id="configurationIcon" class="ni ni-bold-right text-primary"></i> Configuration
             </a>
-          </li> @endcan
+          </li>
+         
+
+                             @can("index",App\User::class) 
+                            <li class="nav-item configurationItems" style="display: none;margin-left:8px">
+                               <a id="domains" class="nav-link " href="/domains">
+                                <i class="ni ni-world-2 text-blue"></i> Domains 
+                              </a>
+                            </li>
+                            @endcan
+
+                           
+                            <li class="nav-item configurationItems" style="display: none;margin-left:8px">
+                               <a id="themes" class="nav-link " href="/themes">
+                                <i class="ni ni-diamond text-blue"></i> Themes 
+                              </a>
+                            </li>
+         
+
+         
         
         </ul>
         
@@ -81,7 +163,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="/">Dashboard</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="javascript:void(0)" onclick="toggleNavBar()"><i style="color: white !important;font-size: 2rem;" class="ni ni-align-left-2 text-blue"></i></a>
         <!-- User -->
         <ul class="navbar-nav align-items-center d-none d-md-flex">
           @include("include.user")
@@ -107,17 +189,33 @@
     </div>
   </div>
 
+  <script>
+    var toggle = true;
+    var element = document.getElementsByClassName("navbar")[0];
+    function toggleNavBar(){
+      if(toggle)
+      {
+        element.classList.remove("fixed-left");
+        toggle=false;
+      }
+      else
+      {
+        element.classList.add("fixed-left");
+        toggle=true;
+      }
+    }
+  </script>
+
   <!--   Core   -->
   <script src="/js/plugins/jquery/dist/jquery.min.js"></script>
   <script src="/js/plugins/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  <!--   Optional JS   -->
-  <script src="/js/plugins/chart.js/dist/Chart.min.js"></script>
-  <script src="/js/plugins/chart.js/dist/Chart.extension.js"></script>
   <!--   Argon JS   -->
   <script src="/js/argon-dashboard.min.js?v=1.1.0"></script>
+  <!-- js files -->
   <script src="/js/axios.min.js"></script>
-   <script src="/js/vue.js"></script>
+  <script src="/js/vue.js"></script>
   <script src="/js/url.js"></script>
+  <script src="/js/select2.min.js"></script>
   @yield('js')
 </body>
 

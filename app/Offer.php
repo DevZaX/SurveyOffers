@@ -8,9 +8,13 @@ class Offer extends Model
 {
     protected $dates=["created_at"];
 
-    protected $fillable = ["offer_name","status","category","url","image_path","products_available","market_price","today_price","stars","users_number","currency","source","group_id"];
+    protected $fillable = ["offer_name","status","category","url","image_path","products_available","market_price","today_price","stars","users_number","currency","source","group_id","geo",];//"shippingPrice"];
 
     public function user(){
     	return $this->belongsTo(\App\User::class);
+    }
+
+    public function group(){
+    	return $this->belongsTo(Group::class);
     }
 }
