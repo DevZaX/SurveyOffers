@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\CategoryResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -20,10 +21,25 @@ class CategoryController extends Controller
     	return view("categories.index");
     }
 
+
+    public function filter($model)
+    {
+        if( request("categoryName") != "" ) $model = $model->where( "name","like","%".request("categoryName")."%" );
+        if( request("categoryStatus") != null ) $model = $model->where( "status",request("categoryStatus") );
+        if( request("categoryCreated") != "" ) $model = $model->whereBetween( "created_at",[
+            Carbon::parse( request("categoryCreated") )->startOfDay(),
+            Carbon::parse( request("categoryCreated") )->endOfDay()
+        ] );
+
+        return $model
+        ->orderBy( request("sortBy"),request("sortType") )
+        ->paginate( request("limit") );
+    }
+
     public function indexApi(Category $category)
     {
     	$this->authorize("index",Category::class);
-    	$categories = $category->where("name","like",request("filter")."%")->paginate(10);
+    	$categories = $this->filter($category);
     	return new CategoryCollection($categories);
     }
 

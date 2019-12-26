@@ -6,12 +6,13 @@ use App\Http\Resources\OfferCollection;
 use App\Http\Resources\OfferResource;
 use App\Offer;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class OfferController extends Controller
 {
 
     public function __construct(){
-        $this->middleware("authMiddleware");
+        $this->middleware("authMiddleware")->except("offers");
     }
    
     public function index()
@@ -21,14 +22,21 @@ class OfferController extends Controller
 
     public function filter($model)
     {
-       if( request("offer_name") ) $model = $model->where("offer_name","like","%".request("offer_name")."%");
-       if( request("status") !== null ) $model = $model->where("status",request("status"));
-       if( request("geo") ) $model = $model->where("geo",request("geo"));
-       if( request("group_id") ) $model = $model->where("group_id",request("group_id"));
+       if( request("offerName") != "" ) $model = $model->where("offer_name","like","%".request("offerName")."%");
+       if( request("status") != null ) $model = $model->where("status",request("status"));
+       if( request("category") != "" ) $model = $model->where("category",request("category"));
+       if( request("geo") != "" ) $model = $model->where("geo",request("geo"));
+       if( request("group_id") != "" ) $model = $model->where("group_id",request("group_id"));
+       if( request("created") != "" ) $model = $model
+        ->whereBetween("created_at",[
+            Carbon::parse(request("created"))->startOfDay(),
+            Carbon::parse(request("created"))->endOfDay()
+        ]);
+       if( request("source") != "" ) $model = $model->where("source","like","%".request("source")."%");
 
        return $model
-       ->orderBy("id","desc")
-       ->paginate(10);
+       ->orderBy(  request("sortBy"),request("sortType") )
+       ->paginate(request("limit"));
     }
 
     public function indexApi(Offer $offer){
@@ -152,6 +160,30 @@ class OfferController extends Controller
         }
         
         return OfferResource::collection($offers);
+    }
+
+
+    public function offers()
+    {
+        $validator = \Validator::make( request()->all(),[
+            "g" => "required",
+            "t" => "required",
+            "tmp" => "required"
+        ] );
+
+        if( $validator->fails() ) return response()->json(["offers"=>[]]);
+
+        $offers = \DB::table("offers")
+        ->join("offer_template","offers.id","=","offer_template.offer_id")
+        ->join("templates","templates.id","=","offer_template.template_id")
+        ->where("templates.geo",request("t"))
+        ->where("templates.group_id",request("g"))
+        ->where("offers.status",1)
+        ->where("templates.id",request("tmp"))
+        ->select("offers.*")
+        ->get();
+
+        return response()->json(["offers"=>$offers]);
     }
 
 

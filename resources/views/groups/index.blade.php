@@ -72,7 +72,7 @@
 
 						<hr style="border: 0">
 
-						<div class="row container">
+						{{-- <div class="row container">
 							<div class="col-8">
 								<label>Filter</label>
 								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="page=1;getGroups()" />
@@ -80,7 +80,7 @@
 						</div>
 						
 						
-						<hr style="border: 0">
+						<hr style="border: 0"> --}}
 
 						<div v-if="successMessage">
 							<div class="alert alert-success">
@@ -89,7 +89,7 @@
 							<hr>
 						</div>
 
-						<nav style="margin-right: 32px" aria-label="...">
+						{{-- <nav style="margin-right: 32px" aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getGroups(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -107,27 +107,58 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 
-						<hr style="border:0">
+				{{-- 		<hr style="border:0"> --}}
 
 
 						<div class="">
-							<table  class="table align-items-center table-flush">
+							<table  class="table align-items-center table-sm table-bordered table-striped">
 								<thead class="thead-light">
 									<tr>
-										<th scope="col">Group name</th>
-										<th scope="col">Created at</th>
-										<th scope="col">Actions</th>
+										<th 
+										style="cursor: pointer;" 
+										@click="sort('groupName')"
+										>
+											Group name
+										</th>
+										<th>Created at</th>
+										<th>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
+									<tr>
+						<!--filter group name -->
+						<td>
+							<input type="text" v-model="groupName" @keyup="filterGroups">
+						</td>
+						<!-- filter group created -->
+						<td>
+							<input 
+							type="date" 
+							v-model="groupCreated" 
+							@change="filterGroups"
+							>
+						</td>
+									</tr>
 									<tr v-for="group in groups">
 										<td>@{{ group.name }}</td>
 										<td>@{{group.created_at}}</td>
 										<td>
-											<button class="btn btn-info" @click="showEditGroupModal(group)"> Edit </button>
-											<button class="btn btn-danger" @click="deleteGroup(group)"> Delete </button>
+											<div class="dropdown">
+												<button 
+													class="btn btn-primary dropdown-toggle" 
+													type="button" id="dropdownMenuButton" 
+													data-toggle="dropdown" 
+													aria-haspopup="true" 
+													aria-expanded="false" />
+														Actions
+												</button>
+												<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+													<a class="dropdown-item" href="javascript:void(0)" @click="showEditGroupModal(group)" >Edit</a>
+													<a class="dropdown-item" href="javascript:void(0)" @click="deleteGroup(group)">Delete</a>
+												</div>		
+											</div>
 										</td>
 									</tr>
 									<tr v-if="groups.length==0">
@@ -135,31 +166,69 @@
 											No offers found
 										</td>
 									</tr>
+									<tr>
+
+										<td colspan="2">
+											<p>
+												page @{{currentPage}} of @{{numberOfPages}}
+ 											</p>
+											 <nav aria-label="...">
+													<ul class="pagination justify-content-start mb-0">
+														<li class="page-item">
+															<a class="page-link" @click="page=1;getGroups()">
+																<<
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+														 <li class="page-item" :class="{'disabled':page==1}">
+														 	<a @click="getGroups(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+														 		<i class="fas fa-angle-left"></i>
+														 		<span class="sr-only">Previous</span>
+														 	</a>
+														 </li>
+														 
+														 <li  
+		v-for="pageNumber in pages.slice( Math.floor((currentPage-1)/5)*5 , Math.floor((currentPage+4)/5)*5 )" 
+		class="page-item" :class="{'active':pageNumber==currentPage}">
+										                    <a @click="page=pageNumber;getGroups()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+										                 </li>
+										                
+														 <li class="page-item" :class="{'disabled':page>=pages.length}">
+														 	<a @click="getGroups(++page)" class="page-link" href="javascript:void(0)">
+														 		<i class="fas fa-angle-right"></i>
+														 		<span class="sr-only">Next</span>
+														 	</a>
+														 </li>
+														  <li class="page-item">
+															<a class="page-link" @click="page=lastPage;getGroups()">
+																>>
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+													</ul>
+												</nav> 
+
+										</td>
+
+										<td colspan="1">
+											<select 
+											class="form-control" 
+											v-model="limit"
+											@change="filterGroups"
+											>
+												<option v-for="limit in limits">
+													@{{limit}}
+												</option>
+											</select>
+										</td>
+
+									</tr>
 								</tbody>
 							</table>
 						</div>
 					</div>
 					<div class="card-footer py-4">
-							<nav  aria-label="...">
-							<ul class="pagination justify-content-end mb-0">
-								 <li class="page-item" :class="{'disabled':page==1}">
-								 	<a @click="getGroups(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
-								 		<i class="fas fa-angle-left"></i>
-								 		<span class="sr-only">Previous</span>
-								 	</a>
-								 </li>
-								 <li v-for="pageNumber in pages.slice(0,lastPage)" class="page-item" :class="{'active':pageNumber==currentPage}">
-				                    <a @click="page=pageNumber;getGroups()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
-				                 </li>
-								 <li class="page-item" :class="{'disabled':page>=pages.length}">
-								 	<a @click="getGroups(++page)" class="page-link" href="javascript:void(0)">
-								 		<i class="fas fa-angle-right"></i>
-								 		<span class="sr-only">Next</span>
-								 	</a>
-								 </li>
-							</ul>
-						</nav>
-
+							
 					</div>
 				</div>
 
@@ -178,5 +247,6 @@
 	<script>$("#groups").addClass("active");</script>
 	<script>$("#permissionIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
 	<script>$(".permissionItems").toggle();</script>
+	<script src="/js/limits.js"></script>
 	<script src="/js/groups.js"></script>
 @endsection

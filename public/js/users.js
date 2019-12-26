@@ -16,10 +16,28 @@ var app = new Vue({
 		numberOfPages:0,
 		currentPage:"",
 		lastPage:0,
+		userName:"",
+		userEmail:"",
+		userCreated:"",
+		userGroupId:"",
+		limits:limits,
+		limit:limits[0],
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods:{
 		getUsers(){
-			axios.get("/api/users?page="+this.page+"&filter="+this.filter).then((res)=>
+
+			var url = "/api/users?page="+this.page;
+			url += url + "&userName="+this.userName;
+			url += url + "&userEmail="+this.userEmail;
+			url += url + "&userCreated="+this.userCreated;
+			url += url + "&userGroupId="+this.userGroupId;
+			url += url + "&limit="+this.limit;
+			url += url + "&sortBy="+this.sortBy;
+			url += url + "&sortType="+this.sortType;
+
+			axios.get(url).then((res)=>
 				{
 					console.log(res);
 					this.users=res.data.data;
@@ -95,6 +113,22 @@ var app = new Vue({
 			.catch((err)=>{
 				this.fillErrors(err);
 			})
+		},
+		filterUsers()
+		{
+			this.page = 1;
+			this.getUsers();
+		},
+		sort(string)
+		{
+			if( string == "userName" )
+			{
+				this.sortBy="name";
+			}
+
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+
+			this.filterUsers();
 		}
 	},
 	created(){

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain;
 use App\Http\Resources\DomainCollection;
 use App\Http\Resources\DomainResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DomainController extends Controller
@@ -20,10 +21,28 @@ class DomainController extends Controller
     	return view("domains.index");
     }
 
+    public function filter($model)
+    {
+        if(request("domainName")!="") 
+        $model=$model->where("name","like","%".request("domainName")."%");
+        if(request("domainStatus")!=null) 
+        $model=$model->where("isActive",request("domainStatus"));
+        if(request("domainGroupId")!="") 
+        $model=$model->where("group_id",request("domainGroupId"));
+        if(request("domainCreated")!="") $model=$model->whereBetween("created_at",[
+            Carbon::parse(request("domainCreated"))->startOfDay(),
+            Carbon::parse(request("domainCreated"))->endOfDay(),
+        ]);
+
+        return $model
+        ->orderBy(request("sortBy"),request("sortType"))
+        ->paginate(request("limit"));
+    }
+
     public function indexApi(Domain $domain)
     {
     	$this->authorize("index",Domain::class);
-    	$domains = $domain->where("name","like","%".request("filter")."%")->paginate(10);
+    	$domains = $this->filter($domain);
     	return new DomainCollection($domains);
     }
 

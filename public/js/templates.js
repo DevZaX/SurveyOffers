@@ -27,10 +27,28 @@ var app = new Vue({
 		lastPage:0,
 		geo:"",
 		group_id:"",
+		templateName:"",
+		templateGeo:"",
+		templateStatus:"",
+		templateCreated:"",
+		templateGroupId:"",
+		limits:limits,
+		limit:limits[0],
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods: {
 		getTemplates(){
-			axios.get("/api/getTemplates?page="+this.page+"&filter="+this.filter+"&geo="+this.geo+"&group_id="+this.group_id)
+			var url = "/api/getTemplates?page="+this.page;
+			url += "&templateName="+this.templateName;
+			url += "&templateGeo="+this.templateGeo;
+			url += "&templateStatus="+this.templateStatus;
+			url += "&templateCreated="+this.templateCreated;
+			url += "&templateGroupId="+this.templateGroupId;
+			url += "&limit="+this.limit;
+			url += "&sortBy="+this.sortBy;
+			url += "&sortType="+this.sortType;
+			axios.get(url)
 			.then((res)=>{
 				this.templates = res.data.data;
 				this.perPage = res.data.perPage;
@@ -224,6 +242,22 @@ var app = new Vue({
 				this.groups = res.data.data;
 			})
 		},
+		filterTemplates()
+		{
+			this.page = 1;
+			this.getTemplates();
+		},
+		sort(string)
+		{
+			if( string == "templateName" )
+			{
+				this.sortBy = "name";
+			}
+
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+
+			this.filterTemplates();
+		}
 	},
 	created(){
 		this.getTemplates();

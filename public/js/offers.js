@@ -10,7 +10,7 @@ var app = new Vue({
 		message:"",
 		offerToUpdate:{},
 		uploadImageError:"",
-		filter:"",
+		filter:{},
 		page:1,
 		selectedOffers:[],
 		status:"",
@@ -32,10 +32,37 @@ var app = new Vue({
 		geo:"",
 		group_id:"",
 		groups:[],
+		tableFilled : false,
+		offersTable:{},
+		id:"",
+		offerName:"",
+		status:"",
+		category:"",
+		created:"",
+		group_id:"",
+		geo:"",
+		source:"",
+		limits:limits,
+		limit:limits[0],
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods: {
 		getOffers(){
-			axios.get("/api/getOffers?page="+this.page+"&filter="+this.filter+"&status="+this.status+"&geo="+this.geo+"&group_id="+this.group_id)
+			axios
+			.get(
+				`/api/getOffers?page=`+this.page+
+				`&offerName=`+this.offerName+
+				`&status=`+this.status+
+				`&category=`+this.category+
+				`&created=`+this.created+
+				`&group_id=`+this.group_id+
+				`&geo=`+this.geo+
+				`&source=`+this.source+
+				`&limit=`+this.limit+
+				`&sortBy=`+this.sortBy+
+				`&sortType=`+this.sortType
+			)
 			.then((res)=>{
 				this.offers = res.data.data;
 				this.perPage = res.data.perPage;
@@ -220,9 +247,31 @@ var app = new Vue({
 			.catch((err)=>{
 				this.fillErrors(err);
 			})
+		},
+		sort(string)
+		{
+			console.log( "sort clicked!" );
+
+			if( string == "offerName" )
+			{
+				this.sortBy = "offer_name";
+				
+			}
+			if( string == "offerSource" )
+			{
+				this.sortBy = "source";
+			}
+
+			this.sortType = this.sortType == "desc" ? "asc" : "desc";
+
+			this.page = 1;
+
+			this.getOffers();
 		}
+		
 	
-	},
+	
+},
 	created(){
 		this.getOffers();
 		this.getGroups();
@@ -240,6 +289,7 @@ var app = new Vue({
 				ar.push(i);
 			}
 			return ar;
-		}
+		},
+		
 	}
 })

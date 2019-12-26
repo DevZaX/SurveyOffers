@@ -215,7 +215,7 @@
 
 						<hr style="border: 0">
 
-						<div class="row container">
+						{{-- <div class="row container">
 							<div class="col-4">
 								<label>Filter</label>
 								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="page=1;getTemplates()" />
@@ -259,7 +259,7 @@
 								</div>
 							</div>
 							@endif
-						</div>
+						</div> --}}
 						
 						
 						<hr style="border: 0">
@@ -271,7 +271,7 @@
 							<hr>
 						</div>
 
-						<nav style="margin-right: 32px" aria-label="...">
+						{{-- <nav style="margin-right: 32px" aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getTemplates(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -289,26 +289,82 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 
 						<hr style="border:0">
 
 						<div class="">
-							<table  class="table align-items-center table-flush">
+							<table  class="table align-items-center table-sm table-bordered table-striped">
 								<thead class="thead-light">
 									<tr>
-										<th scope="col">Template name</th>
-										<th scope="col">Template link</th>
-										<th scope="col">Template geo</th>
+										<th style="cursor: pointer;" @click="sort('templateName')">Template name</th>
+										<th>Template link</th>
+										<th>Template geo</th>
 										@if(auth()->user()->superAdmin)
-										<th scope="col">Template group</th>
+										<th>Template group</th>
 										@endif
-										<th scope="col"> Status </th>
-										<th scope="col">Created at</th>
-										<th scope="col">Actions</th>
+										<th> Status </th>
+										<th>Created at</th>
+										<th>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
+									<tr>
+										<!-- filter template name -->
+										<td>
+											<input type="text" v-model="templateName" @keyup="filterTemplates">
+										</td>
+										<!-- template link filter -->
+										<td></td>
+										<!-- template geo filter -->
+										<td>
+											<select v-model="templateGeo" @change="filterTemplates">
+												<option></option>
+												<option value="AT">AT</option>
+												<option value="AU">AU</option>
+												<option value="BE">BE</option>
+												<option value="BR">BR</option>
+												<option value="CA">CA</option>
+												<option value="CH">CH</option>
+												<option value="DE">DE</option>
+												<option value="DK">DK</option>
+												<option value="ES">ES</option>
+												<option value="FI">FI</option>
+												<option value="FR">FR</option>
+												<option value="IE">IE</option>
+												<option value="IT">IT</option>
+												<option value="NL">NL</option>
+												<option value="NO">NO</option>
+												<option value="NZ">NZ</option>
+												<option value="PL">PL</option>
+												<option value="PT">PT</option>
+												<option value="SE">SE</option>
+												<option value="UK">UK</option>
+												<option value="US">US</option>
+											</select>
+										</td>
+										<!-- tamplate group filter -->
+										@if(auth()->user()->superAdmin)
+											<td>
+												<select v-model="templateGroupId" @change="filterTemplates">
+													<option></option>
+													<option v-for="group in groups" :value="group.id">@{{group.name}}</option>
+												</select>
+											</td>
+										@endif
+										<!-- template status filter -->
+										<td>
+											<select v-model="templateStatus" @change="filterTemplates">
+												<option></option>
+												<option value="1">Active</option>
+												<option value="0">Inactive</option>
+											</select>
+										</td>
+										<!-- template created filter -->
+										<td>
+											<input type="date" v-model="templateCreated" @change="filterTemplates">
+										</td>
+									</tr>
 									<tr v-for="template in templates">
 										<td>
 											<a target="_blank" :href="template.domain">@{{ template.name}}</a>
@@ -323,9 +379,21 @@
 										<td>@{{ template.isActive ? "active" : "inactive" }}</td>
 										<td>@{{ template.created_at }}</td>
 										<td>
-											<button class="btn btn-info" @click="showEditTemplateModal(template)"> Edit </button>
-											<button class="btn btn-danger" @click="deleteTemplate(template)"> Delete </button>
-											<button class="btn btn-warning" @click="showAssignOffersModal(template)"> Assign offers </button>
+											<div class="dropdown">
+												<button 
+													class="btn btn-primary dropdown-toggle" 
+													type="button" id="dropdownMenuButton" 
+													data-toggle="dropdown" 
+													aria-haspopup="true" 
+													aria-expanded="false" />
+														Actions
+												</button>
+												<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+													 <a class="dropdown-item" href="javascript:void(0)" @click="showEditTemplateModal(template)" >Edit</a>
+													 <a class="dropdown-item" href="javascript:void(0)" @click="deleteTemplate(template)">Delete</a>
+													 <a class="dropdown-item" href="javascript:void(0)" @click="showAssignOffersModal(template)">Assign offers</a>
+												</div>		
+											</div>
 										</td>
 									</tr>
 									<tr v-if="templates.length==0">
@@ -340,12 +408,59 @@
 										@endif
 										
 									</tr>
+									<tr>
+										<td colspan="{{ auth()->user()->superAdmin ? 6 : 5 }}">
+											<p>
+												page @{{currentPage}} of @{{numberOfPages}}
+ 											</p>
+											 <nav aria-label="...">
+													<ul class="pagination justify-content-start mb-0">
+														<li class="page-item">
+															<a class="page-link" @click="page=1;getTemplates()">
+																<<
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+														 <li class="page-item" :class="{'disabled':page==1}">
+														 	<a @click="getTemplates(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+														 		<i class="fas fa-angle-left"></i>
+														 		<span class="sr-only">Previous</span>
+														 	</a>
+														 </li>
+														 
+														 <li  
+		v-for="pageNumber in pages.slice( Math.floor((currentPage-1)/5)*5 , Math.floor((currentPage+4)/5)*5 )" 
+		class="page-item" :class="{'active':pageNumber==currentPage}">
+										                    <a @click="page=pageNumber;getTemplates()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+										                 </li>
+										                
+														 <li class="page-item" :class="{'disabled':page>=pages.length}">
+														 	<a @click="getTemplates(++page)" class="page-link" href="javascript:void(0)">
+														 		<i class="fas fa-angle-right"></i>
+														 		<span class="sr-only">Next</span>
+														 	</a>
+														 </li>
+														  <li class="page-item">
+															<a class="page-link" @click="page=lastPage;getTemplates()">
+																>>
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+													</ul>
+												</nav> 
+										</td>
+										<td>
+											<select class="form-control" v-model="limit" @change="filterTemplates">
+												<option v-for="limit in limits">@{{ limit }}</option>
+											</select>
+										</td>
+									</tr>
 								</tbody>
 							</table>
 						</div>
 					</div>
 				<div class="card-footer py-4">
-						<nav aria-label="...">
+						{{-- <nav aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getTemplates(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -363,7 +478,7 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 					</div>
 				</div>
 
@@ -383,5 +498,6 @@
 	<script>$("#templates").addClass("active");</script>
 	<script>$("#offersIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
 	<script>$(".offersItems").toggle();</script>
+	<script src="/js/limits.js"></script>
 	<script src="/js/templates.js"></script>
 @endsection

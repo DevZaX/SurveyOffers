@@ -6,6 +6,7 @@ use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Rules\MatchOldPassword;
 use App\User;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -23,10 +24,27 @@ class UserController extends Controller
         return view("users.edit");
     }
 
+    public function filter($model)
+    {
+        if( request("userName") != "" ) 
+        $model = $model->where( "name","like","%".request("userName")."%" );
+        if(request("userEmail")!="") $model=$model->where("email",request("userEmail"));
+        if(request("userCreated")!="") $model=$model->whereBetween("created_at",[
+            Carbon::parse(request("userCreated"))->startOfDay(),
+            Carbon::parse(request("userCreated"))->endOfDay()
+        ]);
+        if(request("userGroupId") != "") $model=$model->where("group_id",request("userGroupId"));
+
+
+        return $model
+        ->orderBy(request("sortBy"),request("sortType"))
+        ->paginate(request("limit"));
+    }
+
 
     public function indexApi(User $user){
     	$this->authorize("index",User::class);
-    	$users = $user->where('superAdmin',0)->where("name","like","%".request("filter")."%")->paginate(10);
+    	$users = $this->filter($user->where('superAdmin',0));
     	$userCollection = new UserCollection($users);
     	return response($userCollection);
     }

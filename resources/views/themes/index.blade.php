@@ -164,7 +164,7 @@
 
 						<hr style="border: 0">
 
-						<div class="row container">
+						{{-- <div class="row container">
 							<div class="col-4">
 								<label>Filter</label>
 								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="page=1;getThemes()" />
@@ -205,10 +205,10 @@
 									<option value="0">Inactive</option>
 								</select>
 							</div>
-						</div>
+						</div> --}}
 						
 						
-						<hr style="border: 0">
+					{{-- 	<hr style="border: 0"> --}}
 
 						<div v-if="successMessage">
 							<div class="alert alert-success">
@@ -217,7 +217,7 @@
 							<hr>
 						</div>
 
-						<nav style="margin-right: 32px" aria-label="...">
+						{{-- <nav style="margin-right: 32px" aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getThemes(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -235,22 +235,67 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 
 						<hr style="border:0">
 
 						<div class="">
-							<table  class="table align-items-center table-flush">
+							<table  class="table align-items-center table-sm table-bordered table-striped">
 								<thead class="thead-light">
 									<tr>
-										<th scope="col">Theme name</th>
-										<th scope="col">Theme geo</th>
-										<th scope="col"> Status </th>
-										<th scope="col">Created at</th>
-										<th scope="col">Actions</th>
+										<th style="cursor: pointer;" @click="sort('themeName')">Theme name</th>
+										<th>Theme geo</th>
+										<th> Status </th>
+										<th>Created at</th>
+										<th>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
+									<tr>
+										<!-- filter theme name -->
+										<td>
+											<input type="text" v-model="themeName" @keyup="filterThemes">
+										</td>
+										<!-- filter theme geo -->
+										<td>
+											<select v-model="themeGeo" @change="filterThemes">
+												<option></option>
+													<option value="AT">AT</option>
+													<option value="AU">AU</option>
+													<option value="BE">BE</option>
+													<option value="BR">BR</option>
+													<option value="CA">CA</option>
+													<option value="CH">CH</option>
+													<option value="DE">DE</option>
+													<option value="DK">DK</option>
+													<option value="ES">ES</option>
+													<option value="FI">FI</option>
+													<option value="FR">FR</option>
+													<option value="IE">IE</option>
+													<option value="IT">IT</option>
+													<option value="NL">NL</option>
+													<option value="NO">NO</option>
+													<option value="NZ">NZ</option>
+													<option value="PL">PL</option>
+													<option value="PT">PT</option>
+													<option value="SE">SE</option>
+													<option value="UK">UK</option>
+													<option value="US">US</option>
+											</select>
+										</td>
+										<!-- filter theme status -->
+										<td>
+											<select v-model="themeStatus" @change="filterThemes">
+												<option></option>
+												<option value="1">Active</option>
+												<option value="0">Inactive</option>
+											</select>
+										</td>
+										<!-- filter theme created -->
+										<td>
+											<input type="date" v-model="themeCreated" @change="filterThemes">
+										</td>
+									</tr>
 									<tr v-for="theme in themes">
 										<td>
 											@{{ theme.name}}
@@ -259,18 +304,78 @@
 										<td>@{{ theme.status ? "active" : "inactive" }}</td>
 										<td>@{{ theme.created_at }}</td>
 										<td>
-											@can("index",\App\User::class)
-											<button class="btn btn-info" @click="showEditThemeModal(theme)"> Edit </button>
-											@endcan
-											@can("index",\App\User::class)
-											<button class="btn btn-danger" @click="deleteTheme(theme)"> Delete </button>
-											@endcan
-											<button class="btn btn-warning" @click="preview(theme)"> Preview </button>
+											<div class="dropdown">
+												<button 
+													class="btn btn-primary dropdown-toggle" 
+													type="button" id="dropdownMenuButton" 
+													data-toggle="dropdown" 
+													aria-haspopup="true" 
+													aria-expanded="false" />
+														Actions
+												</button>
+												<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+													@can("index",\App\User::class)
+													<a class="dropdown-item" href="javascript:void(0)" @click="showEditThemeModal(theme)" >Edit</a>
+													@endcan
+													@can("index",\App\User::class)
+													<a class="dropdown-item" href="javascript:void(0)" @click="deleteTheme(theme)">Delete</a>
+													@endcan
+													<a class="dropdown-item" href="javascript:void(0)" @click="preview(theme)">Preview</a>
+												</div>		
+											</div>
+											
 										</td>
 									</tr>
 									<tr v-if="themes.length==0">
-										<td colspan="3">
+										<td colspan="5">
 											No themes found
+										</td>
+									</tr>
+									<tr>
+										<td colspan="4">
+											<p>
+												page @{{currentPage}} of @{{numberOfPages}}
+ 											</p>
+											 <nav aria-label="...">
+													<ul class="pagination justify-content-start mb-0">
+														<li class="page-item">
+															<a class="page-link" @click="page=1;getThemes()">
+																<<
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+														 <li class="page-item" :class="{'disabled':page==1}">
+														 	<a @click="getThemes(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+														 		<i class="fas fa-angle-left"></i>
+														 		<span class="sr-only">Previous</span>
+														 	</a>
+														 </li>
+														 
+														 <li  
+		v-for="pageNumber in pages.slice( Math.floor((currentPage-1)/5)*5 , Math.floor((currentPage+4)/5)*5 )" 
+		class="page-item" :class="{'active':pageNumber==currentPage}">
+										                    <a @click="page=pageNumber;getThemes()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+										                 </li>
+										                
+														 <li class="page-item" :class="{'disabled':page>=pages.length}">
+														 	<a @click="getThemes(++page)" class="page-link" href="javascript:void(0)">
+														 		<i class="fas fa-angle-right"></i>
+														 		<span class="sr-only">Next</span>
+														 	</a>
+														 </li>
+														  <li class="page-item">
+															<a class="page-link" @click="page=lastPage;getThemes()">
+																>>
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+													</ul>
+												</nav> 
+										</td>
+										<td colspan="1">
+											<select class="form-control" v-model="limit" @change="filterThemes">
+												<option v-for="limit in limits">@{{limit}}</option>
+											</select>
 										</td>
 									</tr>
 								</tbody>
@@ -278,25 +383,7 @@
 						</div>
 					</div>
 					<div class="card-footer py-4">
-							<nav  aria-label="...">
-							<ul class="pagination justify-content-end mb-0">
-								 <li class="page-item" :class="{'disabled':page==1}">
-								 	<a @click="getThemes(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
-								 		<i class="fas fa-angle-left"></i>
-								 		<span class="sr-only">Previous</span>
-								 	</a>
-								 </li>
-								 <li v-for="pageNumber in pages.slice(0,lastPage)" class="page-item" :class="{'active':pageNumber==currentPage}">
-				                    <a @click="page=pageNumber;getThemes()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
-				                 </li>
-								 <li class="page-item" :class="{'disabled':page>=pages.length}">
-								 	<a @click="getThemes(++page)" class="page-link" href="javascript:void(0)">
-								 		<i class="fas fa-angle-right"></i>
-								 		<span class="sr-only">Next</span>
-								 	</a>
-								 </li>
-							</ul>
-						</nav>
+							
 					</div>
 				</div>
 
@@ -318,5 +405,6 @@
 	<script>$("#themes").addClass("active");</script>
 	<script>$("#configurationIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
 	<script>$(".configurationItems").toggle();</script>
+	<script src="/js/limits.js"></script>
 	<script src="/js/themes.js"></script>
 @endsection

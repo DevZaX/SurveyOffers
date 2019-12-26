@@ -15,10 +15,26 @@ var app = new Vue({
 		numberOfPages:0,
 		currentPage:"",
 		lastPage:0,
+		limits:limits,
+		limit:limits[0],
+		domainName:"",
+		domainStatus:"",
+		domainGroupId:"",
+		domainCreated:"",
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods: {
 		getDomains(){
-			axios.get("/api/getDomains?page="+this.page+"&filter="+this.filter)
+			var url = "/api/getDomains?page="+this.page;
+			url += "&domainName="+this.domainName;
+			url += "&domainStatus="+this.domainStatus;
+			url += "&domainGroupId="+this.domainGroupId;
+			url += "&domainCreated="+this.domainCreated;
+			url += "&limit="+this.limit;
+			url += "&sortBy="+this.sortBy;
+			url += "&sortType="+this.sortType;
+			axios.get(url)
 			.then((res)=>{
 				this.domains = res.data.data;
 				this.perPage = res.data.perPage;
@@ -100,6 +116,20 @@ var app = new Vue({
 				this.groups = res.data.data;
 			})
 		},
+		filterDomains()
+		{
+			this.page = 1;
+			this.getDomains();
+		},
+		sort(string)
+		{
+			if(string=="domainName")
+			{
+				this.sortBy = "name";
+			}
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+			this.filterDomains();
+		}
 	},
 	created(){
 		this.getDomains();

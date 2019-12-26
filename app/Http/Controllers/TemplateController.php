@@ -6,6 +6,7 @@ use App\Http\Resources\OfferResource;
 use App\Http\Resources\TemplateCollection;
 use App\Http\Resources\TemplateResource;
 use App\Template;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TemplateController extends Controller
@@ -23,12 +24,19 @@ class TemplateController extends Controller
 
     public function filter($model)
     {
-        if( request("name") ) $model = $model->where("name","like","%".request("name")."%");
-        if( request("geo") ) $model = $model->where("geo",request("geo"));
-        if( request("group_id") ) $model = $model->where("group_id",request("group_id"));
+        if( request("templateName") != "" ) $model = $model->where("name","like","%".request("templateName")."%");
+        if( request("templateGeo") != "" ) $model = $model->where("geo",request("templateGeo"));
+        if( request("templateGroupId") != "" ) $model = $model->where("group_id",request("templateGroupId"));
+        if( request("templateCreated") != "" ) $model = $model
+        ->whereBetween("created_at",[
+            Carbon::parse( request("templateCreated") )->startOfDay(),
+            Carbon::parse( request("templateCreated") )->endOfDay(),
+        ]);
+        if( request("templateStatus") != null ) $model = $model->where("isActive",request("templateStatus"));
+
         return $model
-        ->orderBy("id","desc")
-        ->paginate(10);
+        ->orderBy( request("sortBy"),request("sortType") )
+        ->paginate(request("limit"));
     }
 
     public function indexApi(Template $template)

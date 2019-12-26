@@ -40,13 +40,14 @@ Route::put("api/users/{id}","UserController@updateApi");
 Route::get("api/users/{id}","UserController@editApi");
 Route::delete("api/users/{id}","UserController@deleteApi");
 
-Route::get("api/offers/groups","OfferController@groups");
+//Route::get("api/offers/groups","OfferController@groups");
 Route::get("api/getOffers","OfferController@indexApi");
 Route::post("api/storeOffer","OfferController@storeApi");
 Route::delete("api/deleteOffer/{id}","OfferController@destroyApi");
 Route::put("api/offers/{id}","OfferController@updateApi");
 Route::post("api/action/{action}","OfferController@action");
 Route::post("api/allOffers","OfferController@all");
+Route::get("api/offers","OfferController@offers");
 
 
 

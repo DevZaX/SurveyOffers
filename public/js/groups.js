@@ -14,10 +14,23 @@ var app = new Vue({
 		numberOfPages:0,
 		currentPage:"",
 		lastPage:0,
+		groupName:"",
+		groupCreated:"",
+		limits:limits,
+		limit:limits[0],
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods: {
 		getGroups(){
-			axios.get("/api/getGroups?page="+this.page+"&filter="+this.filter)
+			var url = "/api/getGroups?page="+this.page;
+			url += url+"&groupName="+this.groupName;
+			url += url+"&groupCreated="+this.groupCreated;
+			url += url + "&limit="+this.limit;
+			url += url + "&sortBy="+this.sortBy;
+			url += url + "&sortType="+this.sortType;
+
+			axios.get(url)
 			.then((res)=>{
 				this.groups = res.data.data;
 				this.perPage = res.data.perPage;
@@ -92,6 +105,22 @@ var app = new Vue({
 				this.fillErrors(err);
 			})
 		},
+		filterGroups()
+		{
+			this.page = 1;
+			this.getGroups();
+		},
+		sort(string)
+		{
+			if(string=="groupName")
+			{
+				this.sortBy = "name";
+			}
+
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+
+			this.filterGroups();
+		}
 	},
 	created(){
 		this.getGroups();

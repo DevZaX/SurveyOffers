@@ -105,10 +105,10 @@
 	            	<hr style="border: 0">
             	</div>
 
-            	<input type="text" class="form-control" style="margin-left: 16px;width: 95%" placeholder="Filter" v-model="filter" @keyup="page=1;getUsers()">
+            	{{-- <input type="text" class="form-control" style="margin-left: 16px;width: 95%" placeholder="Filter" v-model="filter" @keyup="page=1;getUsers()"> --}}
 				<hr style="border: 0">
 
-				<nav style="margin-right: 16px" aria-label="...">
+				{{-- <nav style="margin-right: 16px" aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getUsers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -126,24 +126,45 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 
 				
             	
              
             </div>
-            <div class="table-responsive">
-              <table  class="table align-items-center table-flush">
+            <div class="table-responsive" style="overflow-y: auto;">
+              <table  class="table align-items-center table-sm table-bordered table-striped">
                 <thead class="thead-light">
                   <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Created at</th>
-                    <th scope="col">Group</th>
-                    <th scope="col">Actions</th>
+                    <th style="cursor: pointer;" @click="sort('userName')">Name</th>
+                    <th>Email</th>
+                    <th>Created at</th>
+                    <th>Group</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
+
+                	<tr>
+                		<!-- filter user name -->
+                		<td>
+                			<input type="text" v-model="userName" @keyup="filterUsers">
+                		</td>
+                		<!-- filter user email -->
+                		<td>
+                			<input type="text" v-model="userEmail" @keyup="filterUsers">
+                		</td>
+                		<!-- filter user created -->
+                		<td>
+                			<input type="date" v-model="userCreated" @change="filterUsers">
+                		</td>
+                		<!-- filter user group -->
+                		<td>
+                			<select v-model="userGroupId" @change="filterUsers">
+                				<option v-for="group in groups" :value="group.id">@{{group.name}}</option>
+                			</select>
+                		</td>
+                	</tr>
                 	
                   <tr v-for="user in users">
                    
@@ -152,23 +173,84 @@
                    <td>@{{user.created_at}}</td>
                    <td>@{{user.group ? user.group.name : ''}}</td>
                    <td>
-                   			<button class="btn btn-info" @click="showEditUserModal(user)">Edit</button>
-                   			<button class="btn btn-danger" @click="deleteUser(user)">Delete</button>
+	                   	<div class="dropdown">
+							<button 
+								class="btn btn-primary dropdown-toggle" 
+								type="button" id="dropdownMenuButton" 
+								data-toggle="dropdown" 
+								aria-haspopup="true" 
+								aria-expanded="false" />
+									Actions
+							</button>
+							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<a class="dropdown-item" href="javascript:void(0)" @click="showEditUserModal(user)" >Edit</a>
+								<a class="dropdown-item" href="javascript:void(0)" @click="deleteUser(user)">Delete</a>
+							</div>		
+						</div>
                    	</td>
           
                   </tr>
 
                   <tr v-if="users.length==0">
-                  	<td colspan="3">No users found</td>
+                  	<td colspan="5">No users found</td>
                   </tr>
                   
-                  
+                  <tr>
+
+                  	<td colspan="4">
+                  		<p>
+												page @{{currentPage}} of @{{numberOfPages}}
+ 											</p>
+											 <nav aria-label="...">
+													<ul class="pagination justify-content-start mb-0">
+														<li class="page-item">
+															<a class="page-link" @click="page=1;getUsers()">
+																<<
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+														 <li class="page-item" :class="{'disabled':page==1}">
+														 	<a @click="getUsers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+														 		<i class="fas fa-angle-left"></i>
+														 		<span class="sr-only">Previous</span>
+														 	</a>
+														 </li>
+														 
+														 <li  
+		v-for="pageNumber in pages.slice( Math.floor((currentPage-1)/5)*5 , Math.floor((currentPage+4)/5)*5 )" 
+		class="page-item" :class="{'active':pageNumber==currentPage}">
+										                    <a @click="page=pageNumber;getUsers()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+										                 </li>
+										                
+														 <li class="page-item" :class="{'disabled':page>=pages.length}">
+														 	<a @click="getUsers(++page)" class="page-link" href="javascript:void(0)">
+														 		<i class="fas fa-angle-right"></i>
+														 		<span class="sr-only">Next</span>
+														 	</a>
+														 </li>
+														  <li class="page-item">
+															<a class="page-link" @click="page=lastPage;getUsers()">
+																>>
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+													</ul>
+												</nav> 
+                  	</td>
+					
+					<td colspan="1">
+						<select class="form-control" v-model="limit" @change="filterUsers">
+							<option v-for="limit in limits">@{{limit}}</option>
+						</select>
+					</td>
+
+                  </tr>
                 
                 </tbody>
               </table>
             </div>
             <div class="card-footer py-4">
-            <nav  aria-label="...">
+            {{-- <nav  aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getUsers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -186,7 +268,7 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
             </div>
         </div>
         <div v-show="loading" style="text-align: center;">
@@ -203,5 +285,6 @@
 	<script>$("#users").addClass("active");</script>
 	<script>$("#permissionIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
 	<script>$(".permissionItems").toggle();</script>
+	<script src="/js/limits.js"></script>
 	<script src="/js/users.js"></script>
 @endsection

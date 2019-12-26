@@ -23,6 +23,8 @@
     [v-cloak] {display: none}
   </style>
 
+   @yield("css")
+
   <script>
     function toggleFunction(id)
     {
@@ -215,7 +217,7 @@
   <script src="/js/axios.min.js"></script>
   <script src="/js/vue.js"></script>
   <script src="/js/url.js"></script>
-  <script src="/js/select2.min.js"></script>
+
   @yield('js')
 </body>
 

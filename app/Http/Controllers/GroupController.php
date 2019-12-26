@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Group;
 use App\Http\Resources\GroupCollection;
 use App\Http\Resources\GroupResource;
+use Carbon\Carbon;
 
 class GroupController extends Controller
 {
@@ -19,10 +20,23 @@ class GroupController extends Controller
     	return view("groups.index");
     }
 
+    public function filter($model)
+    {
+        if(request("groupName")!="") $model=$model->where("name",request("groupName"));
+        if(request("groupCreated")!="") $model=$model->whereBetween("created_at",[
+            Carbon::parse(request("groupCreated"))->startOfDay(),
+            Carbon::parse(request("groupCreated"))->endOfDay(),
+        ]);
+
+        return $model
+        ->orderBy(request("sortBy"),request("sortType"))
+        ->paginate(request("limit"));
+    }
+
     public function indexApi(Group $group)
     {
     	$this->authorize("index",Group::class);
-    	$groups = $group->where("name","like",request("filter")."%")->paginate(10);
+    	$groups = $this->filter($group);
     	return new GroupCollection($groups);
     }
 

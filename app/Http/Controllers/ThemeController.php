@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ThemeCollection;
 use App\Http\Resources\ThemeResource;
 use App\Theme;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ThemeController extends Controller
@@ -20,14 +21,29 @@ class ThemeController extends Controller
     	return view("themes.index");
     }
 
+
+    public function filter($model)
+    {
+        if(request("themeName")!="")
+        $model=$model->where("name","like","%".request("themeName")."%");
+        if(request("themeStatus")!=null)
+        $model=$model->where("status",request("themeStatus"));
+        if(request("themeGeo")!="") $model=$model->where("geo",request("themeGeo"));
+        if(request("themeCreated")!="") $model=$model->whereBetween("created_at",[
+            Carbon::parse(request("themeCreated"))->startOfDay(),
+            Carbon::parse(request("themeCreated"))->endOfDay(),
+        ]);
+
+
+        return $model
+        ->orderBy(request("sortBy"),request("sortType"))
+        ->paginate(request("limit"));
+    }
+
     public function indexApi(Theme $theme)
     {
     	$this->authorize("index",Theme::class);
-    	$themes = $theme
-    	->where("name","like","%".request("filter")."%")
-    	->where("geo","like","%".request("geo")."%")
-	->where("status","like","%".request("status")."%")
-    	->paginate(10);
+    	$themes = $this->filter($theme);
     	return new ThemeCollection($themes);
     }
 

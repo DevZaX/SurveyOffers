@@ -14,10 +14,24 @@ var app = new Vue({
 		numberOfPages:0,
 		currentPage:"",
 		lastPage:0,
+		categoryName:"",
+		categoryStatus:"",
+		categoryCreated:"",
+		sortBy:"id",
+		sortType:"desc",
+		limits:limits,
+		limit:limits[0],
 	},
 	methods: {
 		getCategories(){
-			axios.get("/api/getCategories?page="+this.page+"&filter="+this.filter)
+			var url = "/api/getCategories?page="+this.page;
+			url += "&categoryName="+this.categoryName;
+			url += "&categoryStatus="+this.categoryStatus;
+			url += "&categoryCreated="+this.categoryCreated;
+			url += "&sortBy="+this.sortBy;
+			url += "&sortType="+this.sortType;
+			url += "&limit="+this.limit;
+			axios.get(url)
 			.then((res)=>{
 				this.categories = res.data.data;
 				this.perPage = res.data.perPage;
@@ -92,6 +106,22 @@ var app = new Vue({
 				this.fillErrors(err);
 			})
 		},
+		filterCategories()
+		{
+			this.page = 1;
+			this.getCategories();
+		},
+		sort(string)
+		{
+			if( string == "categoryName" )
+			{
+				this.sortBy = "name";
+			}
+
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+
+			this.filterCategories();
+		}
 	},
 	created(){
 		this.getCategories();

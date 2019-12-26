@@ -19,10 +19,26 @@ var app = new Vue({
 		lastPage:0,
 		geo:"",
 		status:"",
+		themeName:"",
+		themeStatus:"",
+		themeCreated:"",
+		themeGeo:"",
+		limits:limits,
+		limit:limits[0],
+		sortBy:"id",
+		sortType:"desc",
 	},
 	methods: {
 		getThemes(){
-			axios.get("/api/getThemes?page="+this.page+"&filter="+this.filter+"&geo="+this.geo+"&status="+this.status)
+			var url = "/api/getThemes?page="+this.page;
+			url += "&themeName="+this.themeName;
+			url += "&themeStatus="+this.themeStatus;
+			url += "&themeCreated="+this.themeCreated;
+			url += "&themeGeo="+this.themeGeo;
+			url += "&limit="+this.limit;
+			url += "&sortBy="+this.sortBy;
+			url += "&sortType="+this.sortType;
+			axios.get(url)
 			.then((res)=>{
 				this.themes = res.data.data;
 				this.perPage = res.data.perPage;
@@ -124,6 +140,22 @@ var app = new Vue({
 		showThemePreviewModal()
 		{
 			$("#themePreviewModal").modal();
+		},
+		filterThemes()
+		{
+			this.page = 1;
+			this.getThemes();
+		},
+		sort(string)
+		{
+			if(string="themeName")
+			{
+				this.sortBy = "name";
+			}
+
+			this.sortType = this.sortType == "asc" ? "desc" : "asc";
+
+			this.filterThemes();
 		}
 	},
 	created(){

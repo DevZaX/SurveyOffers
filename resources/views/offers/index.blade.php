@@ -56,9 +56,7 @@
 					</div>
 					<div>
 						<p v-if="message" style="color: red;">@{{ message }}</p>
-						@can("store",\App\Offer::class)
-						<button style="margin-left: 16px" class="btn btn-primary" @click="showCreateOfferModal">Create new offer</button>
-						@endcan
+						
 
 						<!--create modal -->
 						<div id="createOfferModal" class="modal" tabindex="-1" role="dialog">
@@ -140,6 +138,7 @@
 														<option value="€">EUR</option>
 														<option value="$">USD</option>
 														<option value="£">POUND</option>
+														<option value="CHF">CHF Suisse</option>
 													</select>
 													<div style="color: red;" v-if="error.currency && error.currency.length>0">@{{error.currency[0]}}</div>
 												</div>
@@ -282,6 +281,7 @@
 														<option value="€">EUR</option>
 														<option value="$">USD</option>
 														<option value="£">POUND</option>
+														<option value="CHF">CHF Suisse</option>
 													</select>
 													<div style="color: red;" v-if="error.currency && error.currency.length>0">@{{error.currency[0]}}</div>
 												</div>
@@ -344,57 +344,11 @@
 
 						<hr style="border: 0">
 
-						<div class="row container">
-							<div class="col-3">
-								<label>Filter</label>
-								<input type="text" class="form-control" placeholder="Filter" v-model="filter" @keyup="page=1;getOffers()" />
-							</div>
-							<div class="col-3">
-								<label>Status</label>
-								<select class="form-control" v-model="status" @change="page=1;getOffers()">
-									<option></option>
-									<option value="1">Active</option>
-									<option value="0">Not active</option>
-								</select>
-							</div>
-							<div class="col-3">
-								<label>Geo</label>
-								<select class="form-control" v-model="geo" @change="page=1;getOffers()">
-									<option></option>
-									<option value="AT">AT</option>
+						@can("store",\App\Offer::class)
+								<button style="margin-left: 16px" class="btn btn-primary" @click="showCreateOfferModal">Create new offer</button>
+								@endcan
 
-														<option value="AU">AU</option>
-														<option value="BE">BE</option>
-														<option value="BR">BR</option>
-														<option value="CA">CA</option>
-														<option value="CH">CH</option>
-														<option value="DE">DE</option>
-														<option value="DK">DK</option>
-														<option value="ES">ES</option>
-														<option value="FI">FI</option>
-														<option value="FR">FR</option>
-														<option value="IE">IE</option>
-														<option value="IT">IT</option>
-														<option value="NL">NL</option>
-														<option value="NO">NO</option>
-														<option value="NZ">NZ</option>
-														<option value="PL">PL</option>
-														<option value="PT">PT</option>
-														<option value="SE">SE</option>
-														<option value="UK">UK</option>
-														<option value="US">US</option>
-								</select>
-							</div>
-							@if(auth()->user()->superAdmin)
-							<div class="col-3">
-								<label>Group</label>
-								<select class="form-control" v-model="group_id" @change="page=1;getOffers()">
-									<option></option>
-									<option v-for="group in groups" :value="group.id">@{{group.name}}</option>
-								</select>
-							</div>
-							@endif
-						</div>
+						
 						
 						
 						<hr style="border: 0">
@@ -407,7 +361,7 @@
 						</div>
 
 						<div class="">
-							<div style="display: flex;justify-content: flex-end;margin-right: 32px">
+							{{-- <div style="display: flex;justify-content: flex-end;margin-right: 32px">
 								<div class="dropdown">
 												<button 
 													class="btn btn-primary dropdown-toggle" 
@@ -422,9 +376,9 @@
 													 <a class="dropdown-item" href="javascript:void(0)" @click="doAction('deactivate')">Deactivate</a>
 												</div>		
 											</div>
-										</div>
+										</div> --}}
 										<hr style="border: 0">
-										<nav style="margin-right: 32px" aria-label="...">
+										{{-- <nav style="margin-right: 32px" aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getOffers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -442,27 +396,91 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 						<hr style="border:0">
-							<table  class="table align-items-center table-flush">
+							<table  class="table align-items-center table-sm table-bordered table-striped">
 								<thead class="thead-light">
 									<tr>
-										<th scope="col">Offer name</th>
-										<th scope="col">Status</th>
-										<th scope="col">Category</th>
-										<th scope="col">Created </th>
+										<th style="cursor: pointer;" @click="sort('offerName')">Offer name</th>
+										<th>Status</th>
+										<th>Category</th>
+										<th>Created </th>
 										@if( auth()->user()->superAdmin )
-											<th scope="col">Group</th>
+											<th>Group</th>
 										@endif
-										<th scope="col">Geo</th>
-										<th scope="col">Source</th>
-										<th scope="col">Actions</th>
+										<th>Geo</th>
+										<th style="cursor: pointer;" @click="sort('offerSource')">Source</th>
+										<th>Actions</th>
 									</tr>
 								</thead>
 								<tbody>
+									<tr>
+										<!-- filter offer name -->
+										<td>
+											<input type="text" v-model="offerName" @keyup="page=1;getOffers()">
+										</td>
+										<!-- filter status -->
+										<td>
+											<select v-model="status" @change="page=1;getOffers()">
+												<option></option>
+												<option value="1">Active</option>
+												<option value="0">Inactive</option>
+											</select>
+										</td>
+										<!-- filter category -->
+										<td>
+											<select v-model="category" @change="page=1;getOffers()">
+												<option></option>
+												<option v-for="category in categories" :value="category.name">@{{category.name}}</option>
+											</select>
+										</td>
+										<!-- filter created -->
+										<td>
+											<input type="date" v-model="created" @change="page=1;getOffers()">
+										</td>
+										<!-- filter group -->
+										<td>
+											@if( auth()->user()->superAdmin )
+												<select v-model="group_id" @change="page=1;getOffers()">
+													<option></option>
+													<option v-for="group in groups" :value="group.id">@{{group.name}}</option>
+												</select>
+											@endif
+										</td>
+										<!-- filter geo -->
+										<td>
+											<select v-model="geo" @change="page=1;getOffers()">
+												<option value="AT">AT</option>
+												<option value="AU">AU</option>
+												<option value="BE">BE</option>
+												<option value="BR">BR</option>
+												<option value="CA">CA</option>
+												<option value="CH">CH</option>
+												<option value="DE">DE</option>
+												<option value="DK">DK</option>
+												<option value="ES">ES</option>
+												<option value="FI">FI</option>
+												<option value="FR">FR</option>
+												<option value="IE">IE</option>
+												<option value="IT">IT</option>
+												<option value="NL">NL</option>
+												<option value="NO">NO</option>
+												<option value="NZ">NZ</option>
+												<option value="PL">PL</option>
+												<option value="PT">PT</option>
+												<option value="SE">SE</option>
+												<option value="UK">UK</option>
+												<option value="US">US</option>
+											</select>
+										</td>
+										<!-- filter source -->
+										<td>
+											<input type="text" v-model="source" @keyup="page=1;getOffers()">
+										</td>
+									</tr>
 									<tr v-for="offer in offers">
 										<td>
-											<input type="checkbox" @change="checkBoxClicked($event,offer.id)">
+											{{-- <input type="checkbox" @change="checkBoxClicked($event,offer.id)"> --}}
 											<label>@{{ offer.offer_name }}</label>
 										</td>
 										<td>@{{offer.status ? "active" : "inactive"}}</td>
@@ -498,23 +516,63 @@
 										</td>
 									</tr>
 									<tr v-if="offers.length==0">
-										@if( auth()->user()->superAdmin )
-											<td colspan="7">
-												No offers found
+										<td colspan="{{ auth()->user()->superAdmin ? 7 : 6 }}">
+											No offers found
+										</td>
+									</tr>
+									<tr>
+										<td colspan="{{ auth()->user()->superAdmin ? 7 : 6 }}">
+											<p>
+												page @{{currentPage}} of @{{numberOfPages}}
+ 											</p>
+											 <nav aria-label="...">
+													<ul class="pagination justify-content-start mb-0">
+														<li class="page-item">
+															<a class="page-link" @click="page=1;getOffers()">
+																<<
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+														 <li class="page-item" :class="{'disabled':page==1}">
+														 	<a @click="getOffers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
+														 		<i class="fas fa-angle-left"></i>
+														 		<span class="sr-only">Previous</span>
+														 	</a>
+														 </li>
+														 
+														 <li  
+		v-for="pageNumber in pages.slice( Math.floor((currentPage-1)/5)*5 , Math.floor((currentPage+4)/5)*5 )" 
+		class="page-item" :class="{'active':pageNumber==currentPage}">
+										                    <a @click="page=pageNumber;getOffers()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
+										                 </li>
+										                
+														 <li class="page-item" :class="{'disabled':page>=pages.length}">
+														 	<a @click="getOffers(++page)" class="page-link" href="javascript:void(0)">
+														 		<i class="fas fa-angle-right"></i>
+														 		<span class="sr-only">Next</span>
+														 	</a>
+														 </li>
+														  <li class="page-item">
+															<a class="page-link" @click="page=lastPage;getOffers()">
+																>>
+														 		<span class="sr-only">Previous</span>
+															</a>
+														 </li>
+													</ul>
+												</nav> 
+										</td>
+											<td colspan="1">
+												<select v-model="limit" @change="page=1;getOffers()" class="form-control">
+													<option v-for="limit in limits">@{{limit}}</option>
+												</select>
 											</td>
-										@endif
-										@if( !auth()->user()->superAdmin )
-											<td colspan="6">
-												No offers found
-											</td>
-										@endif
 									</tr>
 								</tbody>
 							</table>
 						</div>
 					</div>
 					<div class="card-footer py-4">
-						<nav aria-label="...">
+						{{-- <nav aria-label="...">
 							<ul class="pagination justify-content-end mb-0">
 								 <li class="page-item" :class="{'disabled':page==1}">
 								 	<a @click="getOffers(--page)" class="page-link" href="javascript:void(0)" tabindex="-1">
@@ -522,7 +580,7 @@
 								 		<span class="sr-only">Previous</span>
 								 	</a>
 								 </li>
-								 <li v-for="pageNumber in pages.slice(0,lastPage)" class="page-item" :class="{'active':pageNumber==currentPage}">
+								 <li v-for="pageNumber in pages.slice(currentPage-1,currentPage+10)" class="page-item" :class="{'active':pageNumber==currentPage}">
 				                    <a @click="page=pageNumber;getOffers()" class="page-link" href="javascript:void(0)">@{{pageNumber}}</a>
 				                 </li>
 								 <li class="page-item" :class="{'disabled':page>=pages.length}">
@@ -532,7 +590,7 @@
 								 	</a>
 								 </li>
 							</ul>
-						</nav>
+						</nav> --}}
 					</div>
 				</div>
 
@@ -554,5 +612,32 @@
 	<script>$("#offers").addClass("active");</script>
 	<script>$("#offersIcon").addClass("ni-bold-down").removeClass("ni-bold-right");</script>
 	<script>$(".offersItems").toggle();</script>
+	<script src="/js/limits.js"></script>
 	<script src="/js/offers.js"></script>
+	
+	
+@endsection
+
+@section("css")
+	<style>
+		ul.dropdown-menu li a{
+			margin-left: 8px
+		}
+		.btn-group>.btn:first-child
+		{
+			margin-left:8px;
+		}
+		ul.pagination
+		{
+			margin-top:8px !important;
+		}
+		ul.pagination li a
+		{
+			border:1px solid;border-color: #ccc;padding: 8px;
+		}
+		ul.pagination li.active a
+		{
+			background-color: #5603ad;padding:8px;color: white;
+		}
+	</style>
 @endsection
